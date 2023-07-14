@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-
-type TDeck = {
-  title: string;
-  _id: string;
-};
+import { Link } from "react-router-dom";
+import { deleteDeck } from "./api/deleteDeck";
+import { TDeck, getDecks } from "./api/getDecks";
+import { createDecks } from "./api/createDeck";
 
 function App() {
   const [title, setTitle] = useState("");
@@ -12,23 +11,20 @@ function App() {
 
   async function handleCreateDeck(e: React.FormEvent) {
     e.preventDefault();
-    await fetch("http://localhost:5000/decks", {
-      method: "POST",
-      body: JSON.stringify({
-        title,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const deck = await createDecks(title);
+    setDecks([...decks, deck]);
     setTitle("");
+  }
+
+  async function handleDeleteDeck(deckId: string) {
+    await deleteDeck(deckId);
+    setDecks(decks.filter((deck) => deck._id !== deckId));
   }
 
   useEffect(() => {
     async function fetchDecks() {
-      const response = await fetch("http://localhost:5000/decks");
-      const allDecks = await response.json();
-      setDecks(allDecks);
+      const newDecks = await getDecks();
+      setDecks(newDecks);
     }
     fetchDecks();
   }, []);
@@ -36,11 +32,6 @@ function App() {
   return (
     <>
       <div className="App">
-        <ul className="decks">
-          {decks.map((deck) => (
-            <li key={deck._id}>{deck.title}</li>
-          ))}
-        </ul>
         <form onSubmit={handleCreateDeck}>
           <label htmlFor="deck-title">Deck Title: </label>
           <input
@@ -52,6 +43,15 @@ function App() {
           />
           <button>Create Deck</button>
         </form>
+        <ul className="decks">
+          {decks.map((deck) => (
+            <li key={deck._id}>
+              <button onClick={() => handleDeleteDeck(deck._id)}>X</button>
+
+              <Link to={`decks/${deck._id}`}>{deck.title}</Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </>
   );

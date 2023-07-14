@@ -21,6 +21,7 @@
 }
 
 .decks li {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -33,4 +34,11 @@
 .decks li:hover {
   cursor: pointer;
   background: rgb(219, 219, 219);
+}
+
+.decks li button {
+  position: absolute;
+  font-size: 10px;
+  top: 5px;
+  right: 5px;
 }

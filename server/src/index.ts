@@ -1,9 +1,12 @@
 import { config } from "dotenv";
 config();
-import express, { Request, Response } from "express";
 import mongoose from "mongoose";
-import Deck from "./models/Deck";
 import cors from "cors";
+import express from "express";
+import { getDecksController } from "./controllers/getDeckController copy 2";
+import { createDecksController } from "./controllers/createDeckController copy";
+import { deleteDeckController } from "./controllers/deleteDeckController";
+import { createCardForDeckController } from "./controllers/createCardForDeckController";
 
 const port: Number = parseInt(process.env.PORT!);
 const app = express();
@@ -14,18 +17,10 @@ app.use(
   })
 );
 
-app.get("/decks", async (req: Request, res: Response) => {
-  const decks = await Deck.find();
-  res.json(decks);
-});
-
-app.post("/decks", async (req: Request, res: Response) => {
-  const newDeck = new Deck({
-    title: req.body.title,
-  });
-  const createdDeck = await newDeck.save();
-  res.json(createdDeck);
-});
+app.get("/decks", getDecksController);
+app.delete("/decks/:deckId", deleteDeckController);
+app.post("/decks", createDecksController);
+app.post("/decks/:deckID/cards", createCardForDeckController);
 
 mongoose.connect(process.env.MONGO_CONNECT!).then(() => {
   console.log(`Listening on port ${port}`);
